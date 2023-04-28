@@ -4,21 +4,68 @@ import LogoutButton from '../components/LogoutButton';
 import Footer from '../components/Footer';
 import Header from '../components/Header';
 import React, { useEffect, useState } from 'react';
+import { useAuth0 } from "@auth0/auth0-react";
+import CryptoJS from 'crypto-js';
+
+const base64url = (source) => {
+  // Encode in classical base64
+  var encodedSource = CryptoJS.enc.Base64.stringify(source);
+
+  // Remove padding equal characters
+  encodedSource = encodedSource.replace(/=+$/, '');
+
+  // Replace characters according to base64url specifications
+  encodedSource = encodedSource.replace(/\+/g, '-');
+  encodedSource = encodedSource.replace(/\//g, '_');
+
+  return encodedSource;
+}
 
 
+const makeJWT = (email) => {
+  const header = {
+    "alg": "HS256",
+    "typ": "JWT"
+  };
+
+  const data = {
+    "email": email
+  }
+
+  const stringifiedHeader = CryptoJS.enc.Utf8.parse(JSON.stringify(header));
+  const encodedHeader = base64url(stringifiedHeader);
+
+  const stringifiedData = CryptoJS.enc.Utf8.parse(JSON.stringify(data));
+  const encodedData = base64url(stringifiedData);
+
+  const unsignedToken = encodedHeader + "." + encodedData;
+
+  const signature = CryptoJS.HmacSHA256(unsignedToken, "jwtsecret");
+  const encodedSignature = base64url(signature);
+  const signedToken = unsignedToken + "." + encodedSignature;
+
+  return signedToken;
+}
 
 const Home = () => {
-    const [query, setQuery] = useState('');
-    const [response, setResponse] = useState([]);
+  const [query, setQuery] = useState('');
+  const [response, setResponse] = useState([]);
+  const {user} = useAuth0();
+  const jwt = makeJWT(user.email);
 
-    const handleQueryChange = (event) => {
+  const handleQueryChange = (event) => {
     setQuery(event.target.value);
   };
 
-
-const handleSearchClick = async () => {
+  const handleSearchClick = async () => {
     try {
-      const response = await fetch(`http://34.93.191.58/query?query=${query}`);
+      const response = await fetch(
+        `http://34.93.191.58/query?query=${query}`,{
+          headers:{
+            'Authorization': `Bearer ${jwt}`
+          }
+        }
+      );
       const data = await response.json();
       console.log(data.results)
       setResponse(data.results);
