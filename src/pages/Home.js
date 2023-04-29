@@ -60,7 +60,8 @@ const Home = () => {
   const handleSearchClick = async () => {
     try {
       const response = await fetch(
-        `http://34.93.191.58/query?query=${query}`,{
+        `http://localhost:8000/query?query=${query}`,{
+          method: 'GET',
           headers:{
             'Authorization': `Bearer ${jwt}`
           }
