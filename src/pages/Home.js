@@ -48,7 +48,7 @@ const makeJWT = (email) => {
 
 const Home = () => {
   const [selectedFile, setSelectedFile] = useState();
-	const [isFilePicked, setIsFilePicked] = useState(false);
+  const [isFilePicked, setIsFilePicked] = useState(false);
   const [query, setQuery] = useState('');
   const [response, setResponse] = useState([]);
   const {user} = useAuth0();
@@ -65,13 +65,9 @@ const Home = () => {
 
   const handleUpload = async () => {
     if(!isFilePicked){
-      console.log('No file selected');
+      alert('No file selected');
       return;
     }
-    else{
-      console.log(selectedFile.name);
-    }
-    console.log('5');
     let formData = new FormData();
     formData.append('file', selectedFile);
     try{
@@ -85,9 +81,9 @@ const Home = () => {
         }
       );
       const data = await response.json();
-      console.log(data);
+      alert('File Uploaded Successfully');
     } catch (error) {
-      console.log(error);
+      alert(error);
     }
   }
 
@@ -132,7 +128,7 @@ const Home = () => {
             <Header />
             <div className="parent">
             <div className="uploadPosition">
-              <input type="file" name="file" onChange={changeHandler} />
+              <input type="file" name="file" id="inputfile" onChange={changeHandler} />
               <button onClick={handleUpload}>Upload Document</button>
             </div>
             <div className = "logOutposition">
