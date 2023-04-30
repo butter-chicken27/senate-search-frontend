@@ -1,4 +1,3 @@
-import logo from '../logo.svg';
 import '../App.css';
 import LogoutButton from '../components/LogoutButton';
 import Footer from '../components/Footer';
@@ -48,14 +47,49 @@ const makeJWT = (email) => {
 }
 
 const Home = () => {
+  const [selectedFile, setSelectedFile] = useState();
+	const [isFilePicked, setIsFilePicked] = useState(false);
   const [query, setQuery] = useState('');
   const [response, setResponse] = useState([]);
   const {user} = useAuth0();
   const jwt = makeJWT(user.email);
 
+  const changeHandler = (event) => {
+		setSelectedFile(event.target.files[0]);
+		setIsFilePicked(true);
+	};
+
   const handleQueryChange = (event) => {
     setQuery(event.target.value);
   };
+
+  const handleUpload = async () => {
+    if(!isFilePicked){
+      console.log('No file selected');
+      return;
+    }
+    else{
+      console.log(selectedFile.name);
+    }
+    console.log('5');
+    let formData = new FormData();
+    formData.append('file', selectedFile);
+    try{
+      const response = await fetch(
+        `http://localhost:8000/upload`,{
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${jwt}`
+          },
+          body: formData
+        }
+      );
+      const data = await response.json();
+      console.log(data);
+    } catch (error) {
+      console.log(error);
+    }
+  }
 
   const handleSearchClick = async () => {
     try {
@@ -96,10 +130,15 @@ const Home = () => {
         <div>
             <header>
             <Header />
+            <div className="parent">
+            <div className="uploadPosition">
+              <input type="file" name="file" onChange={changeHandler} />
+              <button onClick={handleUpload}>Upload Document</button>
+            </div>
             <div className = "logOutposition">
             <LogoutButton />
             </div>
-
+            </div>
             <main className="main">
               <div className='queryBox'>
                 <input type="text" value={query} onChange={handleQueryChange} placeholder = "Type Query" className="query-input" />

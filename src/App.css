@@ -93,6 +93,17 @@
 
 .logOutposition{
   text-align: right;
+  display: inline-block;
+}
+
+.parent{
+  display: flex;
+  justify-content: space-between;
+}
+
+.uploadPosition{
+  text-align: left;
+  display: inline-block;
 }
 
 .results{
